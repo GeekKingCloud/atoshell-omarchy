@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Atoshell Queue — Omarchy Quattro v1 preview</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #101315;
+    --panel: #101315;
+    --fg: #cacccc;
+    --dim: #707880;
+    --accent: #cacccc;
+    --urgent: #a55555;
+    --normal: rgb(202 204 204 / .04);
+    --hover: rgb(202 204 204 / .08);
+    --border: rgb(202 204 204 / .40);
+    --radius: 0px;
+    --mono: "JetBrainsMono Nerd Font", "CaskaydiaCove Nerd Font", ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 48px;
+    background: #0b0d0f;
+    color: var(--fg);
+    font: 12px/1.35 var(--mono);
+  }
+  .stage { display: grid; grid-template-columns: 420px 180px; gap: 28px; align-items: start; }
+  .bar {
+    grid-column: 1;
+    width: 100%; height: 26px;
+    display: flex; align-items: center; justify-content: flex-end;
+    background: var(--bg); border: 1px solid var(--border);
+    padding-inline: 5px;
+  }
+  .bar-icon { width: 27px; height: 22px; display: grid; place-items: center; }
+  .bar-icon img { width: 18px; height: 18px; object-fit: contain; }
+  .panel {
+    grid-column: 1;
+    width: 420px;
+    max-height: 640px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    padding: 14px;
+    box-shadow: 0 10px 28px rgb(0 0 0 / .32);
+  }
+  .content { display: grid; gap: 12px; }
+  .hero { min-height: 31px; display: grid; grid-template-columns: 24px 1fr auto; align-items: center; gap: 14px; }
+  .hero-mark { width: 28px; height: 28px; object-fit: contain; }
+  h1 { font: 700 14px/1.2 var(--mono); margin: 0; }
+  .meta, .section-title, .stat-label, .shortcuts { font-size: 10px; font-weight: 700; letter-spacing: 1.2px; color: var(--dim); text-transform: uppercase; }
+  .meta { margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .actions { display: flex; gap: 3px; }
+  button { font: inherit; color: var(--fg); background: transparent; border: 0; cursor: pointer; }
+  .icon-button { width: 28px; height: 28px; font-size: 14px; }
+  .icon-button:hover, .icon-button:focus-visible { background: var(--hover); outline: 1px solid rgb(202 204 204 / .25); }
+  .summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .stat { height: 52px; display: grid; place-content: center; justify-items: center; background: var(--normal); }
+  .stat-value { font-size: 14px; line-height: 1; font-weight: 700; }
+  .stat.active .stat-value { color: var(--accent); }
+  .stat.blocked .stat-value { color: var(--urgent); }
+  .stat-label { margin-top: 4px; letter-spacing: .8px; }
+  .section { display: grid; gap: 4px; }
+  .separator { height: 1px; background: var(--border); opacity: .65; }
+  .section-title { padding-top: 2px; }
+  .ticket {
+    min-height: 55px;
+    display: grid;
+    grid-template-columns: 16px 1fr;
+    gap: 9px;
+    padding: 7px 10px;
+    cursor: default;
+  }
+  .ticket:hover, .ticket.selected { background: var(--hover); outline: 1px solid rgb(202 204 204 / .25); }
+  .state-icon { padding-top: 1px; font-size: 13px; }
+  .ticket.active .state-icon, .ticket.active .id { color: var(--accent); }
+  .ticket.blocked .state-icon, .ticket.blocked .id { color: var(--urgent); }
+  .title { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .active .title { font-weight: 700; }
+  .id { font-size: 11px; font-weight: 700; margin-right: 7px; }
+  .ticket-meta, .progress { color: var(--dim); font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+  .shortcuts { text-align: center; letter-spacing: 0; text-transform: none; font-weight: 400; }
+  .controls { grid-column: 2; grid-row: 1 / span 2; border-left: 1px solid var(--border); padding-left: 16px; }
+  .controls h2 { margin: 0 0 10px; font-size: 11px; text-transform: uppercase; letter-spacing: 1.1px; }
+  .controls button { width: 100%; text-align: left; padding: 7px 8px; color: var(--dim); }
+  .controls button:hover, .controls button.active { color: var(--fg); background: var(--hover); }
+  .note { margin-top: 18px; color: var(--dim); font-size: 10px; line-height: 1.55; }
+  .notice { padding: 9px 10px; color: var(--urgent); background: rgb(165 85 85 / .10); }
+  .empty { padding: 18px 0; }
+  .empty strong { font-size: 14px; }
+  .empty p { color: var(--dim); margin: 4px 0 0; }
+  [hidden] { display: none !important; }
+  @media (max-width: 720px) { body { padding: 20px; place-items: start center; } .stage { grid-template-columns: minmax(300px,420px); } .panel,.bar { width: 100%; } .controls { grid-column: 1; grid-row: auto; border: 0; border-top: 1px solid var(--border); padding: 14px 0 0; } }
+</style>
+</head>
+<body>
+<main class="stage">
+  <div class="bar" aria-label="Omarchy bar"><span class="bar-icon" title="2 active · 4 ready · 1 blocked"><img src="../assets/atoshell-mark.svg" alt="Atoshell"></span></div>
+  <section class="panel" aria-label="Atoshell queue panel">
+    <div class="content">
+      <header class="hero">
+        <img class="hero-mark" src="../assets/atoshell-mark.svg" alt="">
+        <div><h1>Atoshell</h1><div class="meta">OMARCHY-ATOSHELL · UPDATED 14:42:08</div></div>
+        <div class="actions"><button class="icon-button" title="Open project terminal">󰆍</button><button class="icon-button" title="Refresh">󰑐</button></div>
+      </header>
+
+      <div id="queue">
+        <div class="summary">
+          <div class="stat active"><div class="stat-value">2</div><div class="stat-label">Active</div></div>
+          <div class="stat"><div class="stat-value">4</div><div class="stat-label">Ready</div></div>
+          <div class="stat blocked"><div class="stat-value">1</div><div class="stat-label">Blocked</div></div>
+        </div>
+        <div style="height:12px"></div>
+        <section class="section"><div class="separator"></div><div class="section-title">Active</div>
+          <article class="ticket active selected"><span class="state-icon">󰔟</span><div><div class="title"><span class="id">#18</span>Wire the queue reader into Quickshell</div><div class="ticket-meta">P0 · M · codex-1</div><div class="progress">Integration tests green; checking empty and stale states.</div></div></article>
+          <article class="ticket active"><span class="state-icon">󰔟</span><div><div class="title"><span class="id">#21</span>Polish the Quattro panel layout</div><div class="ticket-meta">P1 · S · claude-2</div><div class="progress">Matching first-party spacing and keyboard behavior.</div></div></article>
+        </section>
+        <section class="section"><div class="separator"></div><div class="section-title">Up next</div>
+          <article class="ticket"><span class="state-icon">󰄬</span><div><div class="title"><span class="id">#24</span>Package the plugin for the Omarchy directory</div><div class="ticket-meta">P1 · S · unassigned</div></div></article>
+          <article class="ticket"><span class="state-icon">󰄬</span><div><div class="title"><span class="id">#25</span>Document project path configuration</div><div class="ticket-meta">P2 · XS · unassigned</div></div></article>
+        </section>
+        <section class="section"><div class="separator"></div><div class="section-title">Blocked</div>
+          <article class="ticket blocked"><span class="state-icon">󰅖</span><div><div class="title"><span class="id">#17</span>Publish the first marketplace release</div><div class="ticket-meta">P1 · S · unassigned</div><div class="progress">Waiting for the GitHub repository.</div></div></article>
+        </section>
+        <div class="shortcuts">j/k navigate · enter/o terminal · r refresh · esc close</div>
+      </div>
+
+      <div id="stale" class="notice" hidden>Showing the last queue snapshot · Atoshell could not be reached.</div>
+      <div id="empty" class="empty" hidden><strong>Queue clear</strong><p>No active, ready, or blocked tickets. Atoshell has nothing waiting.</p></div>
+      <div id="error" class="empty" hidden><strong style="color:var(--urgent)">Project not configured</strong><p>Set the project folder from Setup › Plugins › Atoshell Queue.</p></div>
+    </div>
+  </section>
+
+  <aside class="controls">
+    <h2>Preview state</h2>
+    <button class="active" data-state="live">Live queue</button>
+    <button data-state="stale">Stale snapshot</button>
+    <button data-state="empty">Queue clear</button>
+    <button data-state="error">Configuration error</button>
+    <p class="note">Reference artifact only. Production QML uses live Quattro Color, Style, Border, PanelHero, CursorSurface, and KeyboardPanel primitives.</p>
+  </aside>
+</main>
+<script>
+  const queue = document.querySelector('#queue');
+  const stale = document.querySelector('#stale');
+  const empty = document.querySelector('#empty');
+  const error = document.querySelector('#error');
+  document.querySelectorAll('[data-state]').forEach(button => button.addEventListener('click', () => {
+    document.querySelectorAll('[data-state]').forEach(b => b.classList.toggle('active', b === button));
+    const state = button.dataset.state;
+    queue.hidden = state === 'empty' || state === 'error';
+    stale.hidden = state !== 'stale';
+    empty.hidden = state !== 'empty';
+    error.hidden = state !== 'error';
+  }));
+</script>
+</body>
+</html>

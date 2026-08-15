@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "id": "geekkingcloud.atoshell",
+  "name": "Atoshell Queue",
+  "version": "0.1.0",
+  "author": "GeekKingCloud",
+  "license": "MPL-2.0",
+  "description": "A live, theme-native peek into an Atoshell queue while coding agents work.",
+  "kinds": ["bar-widget", "service"],
+  "entryPoints": {
+    "barWidget": "BarWidget.qml",
+    "service": "Service.qml"
+  },
+  "barWidget": {
+    "displayName": "Atoshell Queue",
+    "description": "Active, ready, and blocked Atoshell tickets with agent progress from the Omarchy bar.",
+    "category": "Development",
+    "aliases": ["atoshell", "queue", "tickets", "agents"],
+    "allowMultiple": false,
+    "defaultSection": "right",
+    "defaults": {
+      "projectPath": "~",
+      "refreshIntervalSec": 15,
+      "maxTicketsPerSection": 5
+    },
+    "schema": [
+      {
+        "key": "projectPath",
+        "type": "path",
+        "label": "Atoshell project",
+        "description": "Folder containing the .atoshell directory.",
+        "defaultValue": "~"
+      },
+      {
+        "key": "refreshIntervalSec",
+        "type": "integer",
+        "label": "Background refresh (seconds)",
+        "description": "The open panel refreshes every 3 seconds; this controls the idle bar refresh.",
+        "min": 5,
+        "max": 300,
+        "step": 5,
+        "defaultValue": 15
+      },
+      {
+        "key": "maxTicketsPerSection",
+        "type": "integer",
+        "label": "Tickets per section",
+        "min": 1,
+        "max": 20,
+        "step": 1,
+        "defaultValue": 5
+      }
+    ]
+  }
+}
