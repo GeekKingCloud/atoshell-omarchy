@@ -4,15 +4,21 @@ A small, read-only Omarchy Quattro panel for watching an Atoshell queue while co
 
 ## Screenshots
 
-**Closed — a quiet bar indicator; the urgent color means the queue has a blocker:**
+**Open panel — dark theme with a gold accent:**
 
-![Atoshell Queue closed in the Omarchy bar](docs/screenshots/hires/atoshell-queue-closed-crop-2x.png)
+![Atoshell Queue open panel using a dark theme with a gold accent](docs/screenshots/panel-gold.png)
 
-**Open — active agent work, Atoshell-ranked next tickets, and blockers:**
+**Desktop overview — neutral/default theme:**
 
-![Atoshell Queue panel open](docs/screenshots/hires/atoshell-queue-open-crop-2x.png)
+![Atoshell Queue open in desktop context using a neutral theme](docs/screenshots/overview-default.png)
 
-These are lossless captures of the real plugin QML rendered through Quickshell's Qt OpenGL/RHI scenegraph on a temporary off-screen Hyprland output, using representative queue data—not HTML mockups. The runtime mark preserves the canonical hand-drawn paths: only its outer frame follows the active theme accent, while the inner `>_` follows the normal foreground. The fixed green-and-white SVG and 128×128 PNG remain the standalone Atoshell brand assets.
+**Taskbar detail — light theme with a blue accent:**
+
+![Close-up of the Atoshell Queue taskbar mark using a light theme with a blue accent](docs/screenshots/taskbar-light.png)
+
+These three captures show one example of each useful view rather than repeating every state/theme combination. They are rendered from the real plugin QML through Quickshell's Qt OpenGL/RHI scenegraph with representative queue data—not HTML mockups. The taskbar detail uses a native scale-8 render so the mark is genuinely large and sharp, not an enlarged distant crop.
+
+The runtime mark preserves the canonical hand-drawn paths: only its outer frame follows the active theme accent, while the inner `>_` follows the normal foreground. The fixed green-and-white SVG and 128×128 PNG remain the standalone Atoshell brand assets.
 
 ## What v1 shows
 
