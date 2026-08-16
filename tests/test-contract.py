@@ -22,13 +22,23 @@ schema = {item["key"]: item for item in widget["schema"]}
 assert schema["projectPath"]["type"] == "path"
 assert schema["refreshIntervalSec"]["type"] == "integer"
 
-for name in ("BarWidget.qml", "Service.qml", "TicketRow.qml", "QueueSummary.qml"):
+for name in ("BarWidget.qml", "Service.qml", "TicketRow.qml", "QueueSummary.qml", "AtoshellMark.qml"):
     path = ROOT / name
     assert path.is_file(), f"missing {name}"
     source = path.read_text()
     assert not re.search(r'#[0-9a-fA-F]{6}', source), f"hard-coded color in {name}"
 
 assert (ROOT / "assets" / "atoshell-mark.svg").is_file(), "missing canonical Atoshell vector mark"
+
+mark = (ROOT / "AtoshellMark.qml").read_text()
+assert "property color frameColor" in mark
+assert "property color promptColor" in mark
+assert "fillColor: root.frameColor" in mark
+assert mark.count("fillColor: root.promptColor") == 2
+assert "PathSvg" in mark, "runtime mark should preserve the canonical hand-drawn paths"
+assert "onFrameColorChanged: scheduleShapeRebuild()" in mark
+assert "onPromptColorChanged: scheduleShapeRebuild()" in mark
+assert "shapeLoader.active = false" in mark, "theme switches must rebuild the tiny cached Shape"
 
 helper = (ROOT / "bin" / "atoshell-snapshot").read_text()
 assert 'cd -- "$project"' in helper
@@ -39,7 +49,12 @@ bar = (ROOT / "BarWidget.qml").read_text()
 assert "KeyboardPanel" in bar
 assert "PanelKeyCatcher" in bar
 assert "PanelHero" in bar
-assert 'assets/atoshell-mark.svg' in bar
+assert bar.count("AtoshellMark {") == 2
+assert bar.count("frameColor: Color.accent") == 2
+assert bar.count("promptColor: root.foreground") == 2
+assert "useActiveColor" not in bar
+assert "activeColor:" not in bar, "queue state must not recolor anything beyond the mark frame"
+assert 'assets/atoshell-mark.svg' not in bar, "fixed-color brand SVG must not drive the runtime mark"
 assert "ACTIVE" in bar and "UP NEXT" in bar and "BLOCKED" in bar
 assert "textFormat: Text.PlainText" in bar
 

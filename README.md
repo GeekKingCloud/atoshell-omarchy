@@ -6,13 +6,13 @@ A small, read-only Omarchy Quattro panel for watching an Atoshell queue while co
 
 **Closed — a quiet bar indicator; the urgent color means the queue has a blocker:**
 
-![Atoshell Queue closed in the Omarchy bar](docs/screenshots/atoshell-queue-closed-crop.png)
+![Atoshell Queue closed in the Omarchy bar](docs/screenshots/hires/atoshell-queue-closed-crop-2x.png)
 
 **Open — active agent work, Atoshell-ranked next tickets, and blockers:**
 
-![Atoshell Queue panel open](docs/screenshots/atoshell-queue-open-crop.png)
+![Atoshell Queue panel open](docs/screenshots/hires/atoshell-queue-open-crop-2x.png)
 
-These are captures of the real plugin QML running under Quickshell in an isolated wlroots compositor with representative queue data, not HTML mockups. The production plugin renders the canonical SVG directly for crisp scaling; a 128×128 transparent PNG derivative is retained for raster-only uses.
+These are lossless captures of the real plugin QML rendered through Quickshell's Qt OpenGL/RHI scenegraph on a temporary off-screen Hyprland output, using representative queue data—not HTML mockups. The runtime mark preserves the canonical hand-drawn paths: only its outer frame follows the active theme accent, while the inner `>_` follows the normal foreground. The fixed green-and-white SVG and 128×128 PNG remain the standalone Atoshell brand assets.
 
 ## What v1 shows
 
@@ -44,7 +44,7 @@ curl -fsSL https://raw.githubusercontent.com/GeekKingCloud/atoshell/main/install
 Once this repository is published:
 
 ```bash
-omarchy plugin add https://github.com/GeekKingCloud/omarchy-atoshell.git --enable
+omarchy plugin add https://github.com/GeekKingCloud/atoshell-omarchy.git --enable
 ```
 
 For local development, link the checkout into Omarchy's third-party plugin directory, then rescan:

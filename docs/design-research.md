@@ -40,7 +40,7 @@ The tagged [`Style.qml`](https://github.com/basecamp/omarchy/blob/v4.0.0/shell/C
 - default normal fill is 4%, hover/cursor fill 8%, selected fill 18%; cursor color transition is 60 ms;
 - default horizontal bar is 26 px, with a 27 px icon slot and 16 px optical canvas.
 
-**Decision:** production QML contains no hex colors and no independent font, radius, shadow, or spacing system. It binds to `Color`, `Style`, `Border`, and the live bar.
+**Decision:** production QML contains no hex colors and no independent font, radius, shadow, or spacing system. It binds to `Color`, `Style`, `Border`, and the live bar. The runtime Atoshell mark preserves the canonical hand-drawn paths but separates their semantic colors: only the crooked outer frame uses `Color.accent`, while the inner `>_` uses the normal foreground. The fixed green-and-white artwork remains the standalone brand asset rather than being forced into the themed shell.
 
 ### Panel composition
 
@@ -90,7 +90,7 @@ Useful pattern: cheap local refresh and no external account dependency.
 
 ## Information hierarchy
 
-1. **Bar glyph:** neutral when only ready work exists; accent when agents are active; urgent when blocked work exists. Tooltip carries counts so the bar keeps Quattro's icon-only rhythm.
+1. **Bar glyph:** the crooked outer frame always carries the live theme accent and the inner `>_` stays on the ordinary bar foreground; a separate urgent dot appears only when blocked work exists. Tooltip carries counts so the bar keeps Quattro's icon-only rhythm.
 2. **Hero:** Atoshell + current project + precise snapshot time. Refresh and project-terminal actions are compact trailing controls.
 3. **Three-count strip:** Active / Ready / Blocked, all compact and equal in geometry. This is a queue legend, not a dashboard KPI treatment.
 4. **Active:** first because it answers what agents are doing now. Bold title, accountable identity, latest progress comment.

@@ -162,14 +162,10 @@ Panel {
     text: ""
     iconComponent: Component {
       Item {
-        Image {
+        AtoshellMark {
           anchors.fill: parent
-          source: Qt.resolvedUrl("assets/atoshell-mark.svg")
-          fillMode: Image.PreserveAspectFit
-          sourceSize.width: 128
-          sourceSize.height: 128
-          smooth: true
-          mipmap: true
+          frameColor: Color.accent
+          promptColor: root.foreground
         }
         Rectangle {
           visible: Number((root.snapshot.counts || {}).blocked || 0) > 0
@@ -183,8 +179,6 @@ Panel {
       }
     }
     active: Number((root.snapshot.counts || {}).active || 0) > 0 || Number((root.snapshot.counts || {}).blocked || 0) > 0
-    useActiveColor: true
-    activeColor: Number((root.snapshot.counts || {}).blocked || 0) > 0 ? root.urgent : Color.accent
     tooltipText: root.serviceState !== "ok" && root.serviceMessage !== ""
       ? Model.autoTextSafe(root.serviceMessage)
       : Model.barTooltip(root.snapshot, root.refreshing)
@@ -245,14 +239,10 @@ Panel {
               Item {
                 width: Style.space(30)
                 height: width
-                Image {
+                AtoshellMark {
                   anchors.fill: parent
-                  source: Qt.resolvedUrl("assets/atoshell-mark.svg")
-                  fillMode: Image.PreserveAspectFit
-                  sourceSize.width: 128
-                  sourceSize.height: 128
-                  smooth: true
-                  mipmap: true
+                  frameColor: Color.accent
+                  promptColor: root.foreground
                 }
                 Rectangle {
                   visible: Number((root.snapshot.counts || {}).blocked || 0) > 0
