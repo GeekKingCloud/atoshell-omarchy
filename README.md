@@ -8,9 +8,9 @@ A small, read-only Omarchy Quattro panel for watching an Atoshell queue while co
 
 <img src="docs/screenshots/panel-gold.png" alt="Atoshell Queue open panel using a dark theme with a gold accent" width="860">
 
-**Desktop overview — neutral/default theme:**
+**Quattro overview — the default Tokyo Night theme:**
 
-<img src="docs/screenshots/overview-default.png" alt="Atoshell Queue open in desktop context using a neutral theme" width="960">
+<img src="docs/screenshots/overview-default.png" alt="Atoshell Queue open in Omarchy Quattro using the default Tokyo Night theme and Audi Quattro background" width="960">
 
 **Taskbar detail — light theme with a blue accent:**
 
