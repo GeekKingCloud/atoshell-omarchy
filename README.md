@@ -6,17 +6,17 @@ A small, read-only Omarchy Quattro panel for watching an Atoshell queue while co
 
 **Open panel — dark theme with a gold accent:**
 
-![Atoshell Queue open panel using a dark theme with a gold accent](docs/screenshots/panel-gold.png)
+<img src="docs/screenshots/panel-gold.png" alt="Atoshell Queue open panel using a dark theme with a gold accent" width="860">
 
 **Desktop overview — neutral/default theme:**
 
-![Atoshell Queue open in desktop context using a neutral theme](docs/screenshots/overview-default.png)
+<img src="docs/screenshots/overview-default.png" alt="Atoshell Queue open in desktop context using a neutral theme" width="960">
 
 **Taskbar detail — light theme with a blue accent:**
 
-![Close-up of the Atoshell Queue taskbar mark using a light theme with a blue accent](docs/screenshots/taskbar-light.png)
+<img src="docs/screenshots/taskbar-light.png" alt="Close-up of the Atoshell Queue taskbar mark using a light theme with a blue accent" width="960">
 
-These three captures show one example of each useful view rather than repeating every state/theme combination. They are rendered from the real plugin QML through Quickshell's Qt OpenGL/RHI scenegraph with representative queue data—not HTML mockups. The taskbar detail uses a native scale-8 render so the mark is genuinely large and sharp, not an enlarged distant crop.
+These three captures show one example of each useful view rather than repeating every state/theme combination. They are rendered from the real plugin QML through Quickshell's Qt OpenGL/RHI scenegraph with representative queue data—not HTML mockups. Each checked-in PNG retains two source pixels per intended README display pixel; the taskbar source was rendered at compositor scale 16. GitHub receives the HiDPI assets with explicit display widths rather than enlarging low-resolution crops.
 
 The runtime mark preserves the canonical hand-drawn paths: only its outer frame follows the active theme accent, while the inner `>_` follows the normal foreground. The fixed green-and-white SVG and 128×128 PNG remain the standalone Atoshell brand assets.
 
