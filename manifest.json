@@ -4,7 +4,7 @@
   "name": "Atoshell Queue",
   "version": "1.0.0",
   "author": "GeekKingCloud",
-  "license": "MPL-2.0",
+  "license": "MIT",
   "description": "A live, theme-native peek into an Atoshell queue while coding agents work.",
   "kinds": ["bar-widget", "service"],
   "entryPoints": {

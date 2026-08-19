@@ -11,9 +11,10 @@ assert manifest["schemaVersion"] == 1
 assert manifest["id"] == "geekkingcloud.atoshell"
 assert manifest["name"] == "Atoshell Queue"
 assert manifest["version"] == "1.0.0"
+assert manifest["license"] == "MIT"
 assert set(manifest["kinds"]) == {"bar-widget", "service"}
 assert manifest["entryPoints"] == {"barWidget": "BarWidget.qml", "service": "Service.qml"}
-assert (ROOT / "LICENSE").read_text(encoding="utf-8").startswith("Mozilla Public License Version 2.0")
+assert (ROOT / "LICENSE").read_text(encoding="utf-8").startswith("MIT License")
 assert "omarchy plugin remove geekkingcloud.atoshell" in readme
 assert "https://github.com/GeekKingCloud/atoshell" in readme
 widget = manifest["barWidget"]

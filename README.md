@@ -142,4 +142,4 @@ Review any plugin before enabling it, including this one.
 
 ## License
 
-MPL-2.0
+MIT
