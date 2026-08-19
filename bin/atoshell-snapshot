@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+set -u
+
+emit_error() {
+  jq -cn --arg state "$1" --arg message "$2" '{state:$state,message:$message,project:{name:"",path:""},counts:{active:0,ready:0,blocked:0},active:[],ready:[],blocked:[],generated_at:""}'
+  exit 0
+}
+
+project=${1:-}
+[[ -n "$project" ]] || emit_error "missing-project" "Choose an Atoshell project in this widget's settings."
+# "~" is a literal settings prefix here, not shell tilde expansion.
+# shellcheck disable=SC2088
+if [[ "$project" == "~" ]]; then
+  project=$HOME
+elif [[ ${project:0:2} == "~/" ]]; then
+  project=$HOME/${project#\~/}
+fi
+
+[[ -d "$project" ]] || emit_error "missing-project" "Project folder not found: $project"
+[[ -d "$project/.atoshell" ]] || emit_error "not-initialized" "No .atoshell directory in $project"
+command -v atoshell >/dev/null 2>&1 || emit_error "missing-cli" "Atoshell is not installed or is not on PATH."
+command -v jq >/dev/null 2>&1 || emit_error "missing-jq" "jq is required by Atoshell and this widget."
+command -v timeout >/dev/null 2>&1 || emit_error "missing-timeout" "GNU timeout is required by the Atoshell plugin."
+
+command_timeout_sec=${ATOSHELL_SNAPSHOT_TIMEOUT_SEC:-10}
+if [[ ! $command_timeout_sec =~ ^[0-9]+$ ]] || (( command_timeout_sec < 1 || command_timeout_sec > 120 )); then
+  command_timeout_sec=10
+fi
+
+work=$(mktemp -d "${TMPDIR:-/tmp}/omarchy-atoshell.XXXXXX") || emit_error "internal-error" "Could not create a temporary snapshot directory."
+trap 'rm -rf -- "$work"' EXIT
+
+run_list() {
+  local scope=$1 output=$2 error=$3
+  local rc
+  (cd -- "$project" && timeout --kill-after=2s "${command_timeout_sec}s" atoshell list "$scope" --json) >"$output" 2>"$error"
+  rc=$?
+  if (( rc != 0 )); then
+    local detail
+    detail=$(jq -r '.code // .message // empty' <"$error" 2>/dev/null | head -n 1)
+    [[ -n "$detail" ]] || detail=$(head -n 1 "$error")
+    if (( rc == 124 || rc == 137 )); then
+      emit_error "atoshell-timeout" "Atoshell list $scope timed out after ${command_timeout_sec}s."
+    fi
+    emit_error "atoshell-error" "Atoshell could not read $scope tickets${detail:+: $detail}"
+  fi
+  jq -e 'type == "array"' "$output" >/dev/null 2>&1 || emit_error "invalid-data" "Atoshell returned unreadable $scope ticket data."
+}
+
+run_list in-progress "$work/active.json" "$work/active.err"
+run_list ready "$work/ready.json" "$work/ready.err"
+run_list blockers "$work/blocked.json" "$work/blocked.err"
+
+project_abs=$(cd -- "$project" && pwd -P)
+project_name=$(basename -- "$project_abs")
+generated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+jq -n \
+  --arg name "$project_name" \
+  --arg path "$project_abs" \
+  --arg generated_at "$generated_at" \
+  --slurpfile active "$work/active.json" \
+  --slurpfile ready "$work/ready.json" \
+  --slurpfile blocked "$work/blocked.json" '
+  def with_latest:
+    map(. + {latest_comment: ((.comments // []) | last // null)});
+  ([
+    $blocked[0][] as $blocker |
+    ($blocker.blocking // [])[] |
+    {key: (.id | tostring), blocker: {id: $blocker.id, title: $blocker.title}}
+  ] | group_by(.key) | map({key: .[0].key, value: map(.blocker)}) | from_entries) as $blocked_by |
+  ($blocked_by | keys | map(tonumber)) as $blocked_ids |
+  ($active[0] | map(. + {blocked_by: ($blocked_by[(.id | tostring)] // [])}) | with_latest) as $active_rows |
+  ($ready[0] | map(. as $ticket | select(($blocked_ids | index($ticket.id)) == null)) | with_latest) as $ready_rows |
+  ($ready[0] | map(. as $ticket | select($blocked_ids | index($ticket.id)) | . + {blocked_by: ($blocked_by[(.id | tostring)] // [])}) | with_latest) as $blocked_rows |
+  {
+    state: "ok",
+    message: "",
+    project: {name: $name, path: $path},
+    counts: {
+      active: ($active_rows | length),
+      ready: ($ready_rows | length),
+      blocked: ($blocked_rows | length)
+    },
+    active: $active_rows,
+    ready: $ready_rows,
+    blocked: $blocked_rows,
+    generated_at: $generated_at
+  }
+'
